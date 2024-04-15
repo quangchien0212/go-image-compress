@@ -49,6 +49,8 @@ func main() {
 
 		for _, f := range files {
 			if f.IsDir() {
+				fmt.Printf("This is a folder, Skip compress %s folder\n", f.Name())
+				wg.Done()
 				continue
 			}
 

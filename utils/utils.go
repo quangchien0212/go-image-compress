@@ -10,12 +10,19 @@ import (
 
 	"github.com/h2non/bimg"
 	"github.com/h2non/filetype"
+	svg "github.com/h2non/go-is-svg"
 )
 
 func ImageProcessing(file *os.File, quality int, dirname string) (string, error) {
 	fileInfo, err := file.Stat()
 	buffer := make([]byte, fileInfo.Size())
 	file.Read(buffer)
+
+	if (svg.Is(buffer)) {
+		fmt.Printf("This is SVG file, Copying to %s%s\n", dirname, fileInfo.Name())
+		copyBuff(buffer, dirname, fileInfo.Name())
+		return fileInfo.Name(), nil
+	}
 
 	if isImage, err := IsImage(buffer); err != nil || !isImage {
 		return fileInfo.Name(), err
@@ -58,6 +65,12 @@ func IsImage(buf []byte) (bool, error) {
 	}
 
 	return false, nil
+}
+
+func copyBuff(buf []byte, dst string, filename string) error {
+	err := os.WriteFile(dst + "/" + filename, buf, 0644)
+
+	return err
 }
 
 func HandleError(err error) (b bool) {
